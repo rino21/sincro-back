@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Hôte : 127.0.0.1:3306
--- Généré le : ven. 28 juin 2024 à 07:40
+-- Généré le : lun. 08 juil. 2024 à 13:51
 -- Version du serveur : 5.7.36
 -- Version de PHP : 7.4.26
 
@@ -37,14 +37,6 @@ CREATE TABLE IF NOT EXISTS `adhesion` (
   KEY `fk_Clubs_has_Membre_Clubs_idx` (`club_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
---
--- Déchargement des données de la table `adhesion`
---
-
-INSERT INTO `adhesion` (`club_id`, `membre_id`, `date_adhesion`) VALUES
-('Ident 5637 - Club n° 109717', '5962230', '2019-07-21'),
-('Ident 5637 - Club n° 27014', '4079479', '2020-07-21');
-
 -- --------------------------------------------------------
 
 --
@@ -56,18 +48,11 @@ CREATE TABLE IF NOT EXISTS `clubs` (
   `club_id` varchar(45) NOT NULL,
   `nom_club` varchar(45) DEFAULT NULL,
   `zone_id` int(11) NOT NULL,
+  `pays_id` int(11) NOT NULL,
   PRIMARY KEY (`club_id`),
-  KEY `fk_Clubs_Zones1_idx` (`zone_id`)
+  KEY `fk_Clubs_Zones1_idx` (`zone_id`),
+  KEY `fk_Clubs_Pays1_idx` (`pays_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
---
--- Déchargement des données de la table `clubs`
---
-
-INSERT INTO `clubs` (`club_id`, `nom_club`, `zone_id`) VALUES
-('Ident 5637 - Club n° 109717', 'Tsiroanomandidy', 1),
-('Ident 5637 - Club n° 116076', 'Vohémar', 1),
-('Ident 5637 - Club n° 27014', 'Tsiroanomandidy', 3);
 
 -- --------------------------------------------------------
 
@@ -80,18 +65,6 @@ CREATE TABLE IF NOT EXISTS `districts` (
   `district_id` int(11) NOT NULL,
   PRIMARY KEY (`district_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
---
--- Déchargement des données de la table `districts`
---
-
-INSERT INTO `districts` (`district_id`) VALUES
-(411),
-(422),
-(423),
-(424),
-(425),
-(426);
 
 -- --------------------------------------------------------
 
@@ -123,17 +96,7 @@ CREATE TABLE IF NOT EXISTS `fichiers` (
   `rapp_id` int(11) NOT NULL,
   PRIMARY KEY (`fichiers_id`),
   KEY `fk_Fichiers_Rapport1_idx` (`rapp_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8;
-
---
--- Déchargement des données de la table `fichiers`
---
-
-INSERT INTO `fichiers` (`fichiers_id`, `lien_fichier`, `rapp_id`) VALUES
-(1, 'uploads\\1719184850939.pdf', 9),
-(2, 'uploads\\1719184850957.pdf', 9),
-(3, 'uploads\\1719184861796.pdf', 10),
-(4, 'uploads\\1719184861821.pdf', 10);
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
 
@@ -147,16 +110,27 @@ CREATE TABLE IF NOT EXISTS `fonctions` (
   `titre` varchar(45) DEFAULT NULL,
   `description` longtext,
   PRIMARY KEY (`fonction_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- --------------------------------------------------------
 
 --
--- Déchargement des données de la table `fonctions`
+-- Structure de la table `historique`
 --
 
-INSERT INTO `fonctions` (`fonction_id`, `titre`, `description`) VALUES
-(2, 'Secrétaire', NULL),
-(3, 'Trésorier', NULL),
-(4, 'VP1 - Responsable EML (Formation)', NULL);
+DROP TABLE IF EXISTS `historique`;
+CREATE TABLE IF NOT EXISTS `historique` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `action` varchar(45) NOT NULL,
+  `cible` varchar(45) NOT NULL,
+  `cible_id` int(11) NOT NULL,
+  `timestamp` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `membre_id` varchar(45) NOT NULL,
+  `vu_global` tinyint(4) NOT NULL DEFAULT '0',
+  `vu_propre` tinyint(4) NOT NULL DEFAULT '0',
+  PRIMARY KEY (`id`),
+  KEY `fk_Historique_Membre1_idx` (`membre_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
 
@@ -176,14 +150,6 @@ CREATE TABLE IF NOT EXISTS `mandats` (
   KEY `fk_Mandats_Fonctions1_idx` (`fonction_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
---
--- Déchargement des données de la table `mandats`
---
-
-INSERT INTO `mandats` (`membre_id`, `annee_debut_mandat`, `annee_fin_mandat`, `description`, `fonction_id`) VALUES
-('4079479', 2019, 2024, NULL, 2),
-('4079479', 2020, 2025, NULL, 3);
-
 -- --------------------------------------------------------
 
 --
@@ -193,22 +159,15 @@ INSERT INTO `mandats` (`membre_id`, `annee_debut_mandat`, `annee_fin_mandat`, `d
 DROP TABLE IF EXISTS `membre`;
 CREATE TABLE IF NOT EXISTS `membre` (
   `membre_id` varchar(45) NOT NULL,
-  `nom` varchar(25) DEFAULT NULL,
-  `prenoms` varchar(255) DEFAULT NULL,
-  `sexe` varchar(1) DEFAULT NULL,
+  `nom` varchar(25) NOT NULL,
+  `prenoms` varchar(255) NOT NULL,
+  `sexe` varchar(1) NOT NULL,
   `cmj` varchar(255) DEFAULT NULL,
-  `email` varchar(255) DEFAULT NULL,
-  `telephone` varchar(45) DEFAULT NULL,
+  `email` varchar(255) NOT NULL,
+  `telephone` varchar(45) NOT NULL,
+  `pwd` varchar(255) NOT NULL,
   PRIMARY KEY (`membre_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
---
--- Déchargement des données de la table `membre`
---
-
-INSERT INTO `membre` (`membre_id`, `nom`, `prenoms`, `sexe`, `cmj`, `email`, `telephone`) VALUES
-('4079479', 'Rajaonah', 'Jose', 'M', NULL, 'rajaonahjose@yahoo.fr', '261-331487641'),
-('5962230', 'RASOANAIVO', 'Hasina Heriniaina', 'M', NULL, 'rhasoanaivo@yahoo.fr', '');
 
 -- --------------------------------------------------------
 
@@ -221,15 +180,7 @@ CREATE TABLE IF NOT EXISTS `pays` (
   `pays_id` int(11) NOT NULL AUTO_INCREMENT,
   `nom_pays` varchar(45) NOT NULL,
   PRIMARY KEY (`pays_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8;
-
---
--- Déchargement des données de la table `pays`
---
-
-INSERT INTO `pays` (`pays_id`, `nom_pays`) VALUES
-(1, 'Madagascar'),
-(2, 'La Réunion');
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
 
@@ -245,23 +196,7 @@ CREATE TABLE IF NOT EXISTS `rapport` (
   `membre_id` varchar(45) NOT NULL,
   PRIMARY KEY (`rapp_id`),
   KEY `fk_Rapport_Membre1_idx` (`membre_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8;
-
---
--- Déchargement des données de la table `rapport`
---
-
-INSERT INTO `rapport` (`rapp_id`, `title`, `description`, `membre_id`) VALUES
-(1, 'TATITRA', 'VOLA SISA TAVELA', '4079479'),
-(2, 'TATITRA', 'VOLA SISA TAVELA', '4079479'),
-(3, 'TATITRA', 'VOLA SISA TAVELA', '4079479'),
-(4, 'TATITRA', 'VOLA SISA TAVELA', '4079479'),
-(5, 'TATITRA', 'VOLA SISA TAVELA', '4079479'),
-(6, 'TATITRA', 'VOLA SISA TAVELA', '4079479'),
-(7, 'TATITRA', 'VOLA SISA TAVELA', '4079479'),
-(8, 'TATITRA', 'VOLA SISA TAVELA', '4079479'),
-(9, 'TATITRA', 'VOLA SISA TAVELA', '4079479'),
-(10, 'TATITRA', 'VOLA SISA TAVELA', '4079479');
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
 
@@ -277,15 +212,6 @@ CREATE TABLE IF NOT EXISTS `region` (
   PRIMARY KEY (`region_id`),
   KEY `fk_Region_Districts1_idx` (`district_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
---
--- Déchargement des données de la table `region`
---
-
-INSERT INTO `region` (`region_id`, `nom_region`, `district_id`) VALUES
-(1, 'Region 1', 411),
-(3, 'Region 3', 411),
-(4, 'Region 3', 422);
 
 -- --------------------------------------------------------
 
@@ -315,19 +241,9 @@ CREATE TABLE IF NOT EXISTS `zones` (
   `zone_id` int(11) NOT NULL AUTO_INCREMENT,
   `nom_zone` varchar(45) DEFAULT NULL,
   `region_id` int(11) NOT NULL,
-  `pays_id` int(11) NOT NULL,
   PRIMARY KEY (`zone_id`),
-  KEY `fk_Zones_Region1_idx` (`region_id`),
-  KEY `fk_Zones_Pays1_idx` (`pays_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8;
-
---
--- Déchargement des données de la table `zones`
---
-
-INSERT INTO `zones` (`zone_id`, `nom_zone`, `region_id`, `pays_id`) VALUES
-(1, 'Zone 11', 4, 2),
-(3, 'Zone 12', 3, 2);
+  KEY `fk_Zones_Region1_idx` (`region_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 --
 -- Contraintes pour les tables déchargées
@@ -344,6 +260,7 @@ ALTER TABLE `adhesion`
 -- Contraintes pour la table `clubs`
 --
 ALTER TABLE `clubs`
+  ADD CONSTRAINT `fk_Clubs_Pays1` FOREIGN KEY (`pays_id`) REFERENCES `pays` (`pays_id`) ON DELETE NO ACTION ON UPDATE NO ACTION,
   ADD CONSTRAINT `fk_Clubs_Zones1` FOREIGN KEY (`zone_id`) REFERENCES `zones` (`zone_id`) ON DELETE NO ACTION ON UPDATE NO ACTION;
 
 --
@@ -357,6 +274,12 @@ ALTER TABLE `evenement`
 --
 ALTER TABLE `fichiers`
   ADD CONSTRAINT `fk_Fichiers_Rapport1` FOREIGN KEY (`rapp_id`) REFERENCES `rapport` (`rapp_id`) ON DELETE NO ACTION ON UPDATE NO ACTION;
+
+--
+-- Contraintes pour la table `historique`
+--
+ALTER TABLE `historique`
+  ADD CONSTRAINT `fk_Historique_Membre1` FOREIGN KEY (`membre_id`) REFERENCES `membre` (`membre_id`) ON DELETE NO ACTION ON UPDATE NO ACTION;
 
 --
 -- Contraintes pour la table `mandats`
@@ -387,7 +310,6 @@ ALTER TABLE `taches`
 -- Contraintes pour la table `zones`
 --
 ALTER TABLE `zones`
-  ADD CONSTRAINT `fk_Zones_Pays1` FOREIGN KEY (`pays_id`) REFERENCES `pays` (`pays_id`) ON DELETE NO ACTION ON UPDATE NO ACTION,
   ADD CONSTRAINT `fk_Zones_Region1` FOREIGN KEY (`region_id`) REFERENCES `region` (`region_id`) ON DELETE NO ACTION ON UPDATE NO ACTION;
 COMMIT;
 

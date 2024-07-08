@@ -24,9 +24,11 @@ const tachesRoutes = require('./routes/taches');
 const rapportRoutes = require('./routes/rapport');
 const fichiersRoutes = require('./routes/fichiers');
 const auth = require('./routes/auth')
+const historique = require('./routes/historique')
 
 // Utilisation des routes
 app.use('/auth', auth);
+app.use('/historique', historique)
 app.use('/membres', membreRoutes);
 app.use('/fonctions', fonctionRoutes);
 app.use('/districts', districtsRoutes);
