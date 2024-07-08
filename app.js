@@ -23,8 +23,10 @@ const evenementRoutes = require('./routes/evenement');
 const tachesRoutes = require('./routes/taches');
 const rapportRoutes = require('./routes/rapport');
 const fichiersRoutes = require('./routes/fichiers');
+const auth = require('./routes/auth')
 
 // Utilisation des routes
+app.use('/auth', auth);
 app.use('/membres', membreRoutes);
 app.use('/fonctions', fonctionRoutes);
 app.use('/districts', districtsRoutes);

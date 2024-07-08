@@ -1,5 +1,6 @@
 // controllers/membreController.js
 const Membre = require('../models/membre');
+const Auth = require("../controllers/authController")
 
 const getAllMembres = async (req, res) => {
   try {
@@ -22,7 +23,10 @@ const getMembreById = async (req, res) => {
 
 const createMembre = async (req, res) => {
   try {
-    const result = await Membre.createMembre(req.body);
+    const data = req.body;
+    const pwd =  await Auth.generatePassword(req.body.membre_id);
+    data["pwd"] = pwd
+    const result = await Membre.createMembre(data);
     res.status(201).json({ message: `Membre N° : ${req.body.membre_id} a été bien ajouté.` });
   } catch (error) {
     res.status(500).json({ message: error.message });
